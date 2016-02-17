@@ -1,5 +1,8 @@
 # Dockerfile to run tokyo_amage gem
 
-# Author
+Docker file to run `tokyo_amage` gem (making tokyo amesh image)
 
-cnosuke
+# LICENSE
+
+MIT
+
