@@ -7,11 +7,9 @@ working_directory app_path
 pid "#{app_path}/tmp/unicorn.pid"
 
 # listen
-listen ENV['SINATRA_UNIX_SOCKET']
+listen ENV['SINATRA_UNIX_SOCKET'] || '/tmp/app.sock'
 
-# logging
-stderr_path "#{app_path}/log/unicorn.stderr.log"
-stdout_path "#{app_path}/log/unicorn.stdout.log"
+logger Logger.new($stdout)
 
 # workers
 worker_processes 2

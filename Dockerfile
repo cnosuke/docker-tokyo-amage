@@ -5,18 +5,30 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
   imagemagick \
   libmagickwand-dev \
-  memcached
+  memcached \
+  nginx
 
 COPY updateGit .
 RUN git clone --depth 1 https://github.com/cnosuke/tokyo_amage.git /app
 
-RUN echo "gem 'unicorn'" >> /app/Gemfile
-RUN cd /app && bundle install
+RUN mkdir -p /app/tmp /app/log /app/public /tmp/socks
+WORKDIR /app
 
-ADD run.sh /app/run.sh
-ADD unicorn.rb /app/unicorn.rb
+# Add unicorn and foreman gems
+RUN echo "gem 'unicorn'" >> Gemfile
+RUN echo "gem 'foreman'" >> Gemfile
+RUN bundle install
+
+# Add memcached config
 ADD memcached.conf /etc/memcached.conf
-RUN mkdir -p /app/tmp /app/log /tmp/socks
 
-EXPOSE 8080
-CMD ["/app/run.sh"]
+# Add nginx configs and tricking logger to STDIO
+ADD nginx.conf /etc/nginx/sites-enabled/.
+RUN rm /etc/nginx/sites-enabled/default
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
+
+ADD Procfile unicorn.rb /app/
+
+EXPOSE 80
+CMD ["foreman", "start"]
