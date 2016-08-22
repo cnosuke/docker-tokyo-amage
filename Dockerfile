@@ -8,8 +8,9 @@ RUN apt-get install -y \
   memcached \
   nginx
 
-COPY updateGit .
-RUN git clone --depth 1 https://github.com/cnosuke/tokyo_amage.git /app
+WORKDIR /
+ADD https://github.com/cnosuke/tokyo_amage/archive/master.zip master.zip
+RUN unzip master.zip && mv tokyo_amage-master app
 
 RUN mkdir -p /app/tmp /app/log /app/public /tmp/socks
 WORKDIR /app
